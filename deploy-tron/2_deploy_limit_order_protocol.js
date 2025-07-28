@@ -1,8 +1,8 @@
 const LimitOrderProtocol = artifacts.require('LimitOrderProtocol');
 
 const wethByNetwork = {
-    tron: 'TUrzzZSyCtu2aXdkxnwUqNpqBgoodrbN8Y', // Mainnet WETH address on Tron
-    nile: 'TUrzzZSyCtu2aXdkxnwUqNpqBgoodrbN8Y', // Mainnet WETH address on Tron
+    tron: 'TUrzzZSyCtu2aXdkxnwUqNpqBgoodrbN8Y', // TODO: Mainnet WETH address on Tron
+    nile: 'TUrzzZSyCtu2aXdkxnwUqNpqBgoodrbN8Y', // TODO: Mainnet WETH address on Tron
 };
 
 module.exports = async function (deployer, network, accounts) {
