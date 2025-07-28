@@ -4,6 +4,11 @@ pragma solidity 0.8.23;
 
 /// @title A helper contract for executing boolean functions on arbitrary target call results
 contract PriorityFeeLimiter {
+    // 10.6 gwei
+    uint256 private constant THRESHOLD_1 = 10_600_000_000;
+    // 104.1 gwei
+    uint256 private constant THRESHOLD_2 = 104_100_000_000;
+
     /// @notice Validates priority fee according to the spec
     /// https://snapshot.org/#/1inch.eth/proposal/0xa040c60050147a0f67042ae024673e92e813b5d2c0f748abf70ddfa1ed107cbe
     /// For blocks with baseFee <10.6 gwei – the priorityFee is capped at 70% of the baseFee.
@@ -14,9 +19,9 @@ contract PriorityFeeLimiter {
             uint256 baseFee = block.basefee;
             uint256 priorityFee = tx.gasprice - baseFee;
 
-            if (baseFee < 10.6 gwei) {
+            if (baseFee < THRESHOLD_1) {
                 return priorityFee * 100 <= baseFee * 70;
-            } else if (baseFee < 104.1 gwei) {
+            } else if (baseFee < THRESHOLD_2) {
                 return priorityFee * 2 <= baseFee;
             } else {
                 return priorityFee * 100 <= baseFee * 65;
