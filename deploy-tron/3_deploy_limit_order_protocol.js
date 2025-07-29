@@ -1,7 +1,7 @@
 const LimitOrderProtocol = artifacts.require('LimitOrderProtocol');
 
 const wethByNetwork = {
-    tron: '', // TODO: Mainnet WETH address on Tron
+    tron: '', // TODO: Mainnet WTRX address on Tron
     nile: 'TMY5c28cmksFEpF5oJZt334fPXSg2Lfp4C',
 };
 
