@@ -20,7 +20,7 @@ contract WETH9_21Inches {
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
 
-    function() public payable {
+    receive() external payable {
         deposit();
     }
     function deposit() public payable {
