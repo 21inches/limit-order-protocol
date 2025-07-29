@@ -91,3 +91,50 @@ You can find audit reports on etherscan and in the separate [audit repository](
 Plenty of utils that helps create & sign orders are available in our typescript utils library:
 
 - [1inch Limit Order Utils](https://github.com/1inch/limit-order-protocol-utils)
+
+---
+
+# Deploying 1inch Limit Order Protocol on Tron
+This guide provides the step-by-step instructions to compile and deploy the 1inch Limit Order Protocol smart contracts to a Tron-compatible network (Mainnet or Nile Testnet) using TronBox.
+
+
+## 1. Project Installation
+
+install the dependencies.
+
+```bash
+yarn install
+```
+
+## 2. Environment Setup
+The deployment script requires a private key to sign the transaction. We use a .env file to handle this securely.
+
+Create a `.env` file in the root directory of the project and add your private key:
+
+```bash
+PRIVATE_KEY_TRON=your_private_key_here # For Tron Mainnet
+PRIVATE_KEY_NILE=your_private_key_here # For Tron Nile Testnet
+```
+
+## 3. Deployment Workflow
+### 3.1. Compile Contracts
+This command reads the Solidity files from the contracts/ directory, compiles them, and places the resulting JSON artifacts into the artifacts-tron/ directory.
+```bash
+yarn tronbox compile
+```
+
+### 3.2. Deploy (Migrate) to a Network
+This command runs the deployment scripts located in the deploy-tron/ directory. It will deploy the contracts to the network you specify.
+
+Mainnet
+```bash
+yarn tronbox migrate --network tron
+
+```
+
+Nile Testnet
+```bash
+yarn tronbox migrate --network nile
+```
+
+
