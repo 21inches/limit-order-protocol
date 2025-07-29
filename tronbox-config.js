@@ -6,7 +6,7 @@ module.exports = {
     contracts_build_directory: path.join(__dirname, 'artifacts-tron'),
     networks: {
         mainnet: {
-            privateKey: process.env.PRIVATE_KEY_MAINNET,
+            privateKey: process.env.PRIVATE_KEY_TRON,
             userFeePercentage: 100,
             feeLimit: 1000 * 1e6,
             fullHost: 'https://api.trongrid.io',
