@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 /**
- * @title WETH9_21Inches
+ * @title WTRX9_21Inches
  * @dev A Wrapped TRON (WTRX) contract that allows users to wrap native TRX into a TRC20-compliant token.
  * This enables TRX to be used in decentralized applications that work with TRC20 tokens.
  * This contract includes security improvements like reentrancy protection.
  */
-contract WETH9_21Inches {
+contract WTRX9_21Inches {
     string public name     = "Wrapped Tron";
     string public symbol   = "WTRX";
     uint8  public decimals = 6;
