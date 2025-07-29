@@ -126,15 +126,34 @@ yarn tronbox compile
 ### 3.2. Deploy (Migrate) to a Network
 This command runs the deployment scripts located in the deploy-tron/ directory. It will deploy the contracts to the network you specify.
 
-Mainnet
+**Mainnet**
 ```bash
 yarn tronbox migrate --network tron
 
 ```
 
-Nile Testnet
+**Nile Testnet**
 ```bash
 yarn tronbox migrate --network nile
 ```
+
+### 3.3. Deploying a Single Contract (e.g., WTRX)
+
+If you only need to deploy a specific part of the protocol, like the `WTRX` contract, you can target its migration script directly. This avoids running the full deployment.
+
+Assuming the `WTRX` deployment script is numbered `2_deploy_wtrx.js`, use the `--f <number>` flag to specify which script to run.
+
+**Deploy only WTRX to Tron Mainnet:**
+```bash
+yarn tronbox migrate --f 2 --network tron
+```
+
+**Deploy only WTRX to Nile Testnet:**
+```bash
+yarn tronbox migrate --f 2 --network nile
+```
+
+WETH9_21Inches Address:
+- **Nile Testnet:** [TMY5c28cmksFEpF5oJZt334fPXSg2Lfp4C](https://nile.tronscan.org/#/contract/TMY5c28cmksFEpF5oJZt334fPXSg2Lfp4C)
 
 
