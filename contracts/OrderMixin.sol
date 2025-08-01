@@ -2,47 +2,35 @@
 
 pragma solidity 0.8.23;
 
-import "@openzeppelin/contracts/utils/math/Math.sol";
 import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import "@1inch/solidity-utils/contracts/libraries/SafeERC20.sol";
 
 import "./interfaces/ITakerInteraction.sol";
-import "./interfaces/IPreInteraction.sol";
 import "./interfaces/IPostInteraction.sol";
 import "./interfaces/IOrderMixin.sol";
 import "./libraries/Errors.sol";
 import "./libraries/TakerTraitsLib.sol";
-import "./libraries/BitInvalidatorLib.sol";
-import "./libraries/RemainingInvalidatorLib.sol";
 import "./OrderLib.sol";
+
+interface IERC20 {
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
 
 /// @title Limit Order mixin
 abstract contract OrderMixin is IOrderMixin, EIP712 {
-    using SafeERC20 for IERC20;
     using OrderLib for IOrderMixin.Order;
     using ExtensionLib for bytes;
     using AddressLib for Address;
     using MakerTraitsLib for MakerTraits;
     using TakerTraitsLib for TakerTraits;
-    using BitInvalidatorLib for BitInvalidatorLib.Data;
-    using RemainingInvalidatorLib for RemainingInvalidator;
 
-    mapping(address maker => BitInvalidatorLib.Data data) private _bitInvalidator;
-    mapping(address maker => mapping(bytes32 orderHash => RemainingInvalidator remaining)) private _remainingInvalidator;
+    mapping(address maker => mapping(bytes32 orderHash => bool finished)) private _orderFinished;
 
     /**
      * @notice See {IOrderMixin-cancelOrder}.
      */
-    function cancelOrder(MakerTraits makerTraits, bytes32 orderHash) public {
-        if (makerTraits.useBitInvalidator()) {
-            uint256 invalidator = _bitInvalidator[msg.sender].massInvalidate(makerTraits.nonceOrEpoch(), 0);
-            emit BitInvalidatorUpdated(msg.sender, makerTraits.nonceOrEpoch() >> 8, invalidator);
-        } else {
-            _remainingInvalidator[msg.sender][orderHash] = RemainingInvalidatorLib.fullyFilled();
-            emit OrderCancelled(orderHash);
-        }
+    function cancelOrder(MakerTraits, bytes32 orderHash) public {
+        _orderFinished[msg.sender][orderHash] = true;
+        emit OrderCancelled(orderHash);
     }
 
     /**
@@ -64,7 +52,7 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
 
         // Check signature and apply order/maker permit only on the first fill
         orderHash = order.hash(_domainSeparatorV4());
-        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        uint256 remainingMakingAmount = order.makingAmount;
         address maker = order.maker.get();
         if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
 
@@ -83,7 +71,7 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
         if (order.makerTraits.isExpired()) revert OrderExpired();
 
         // Compute maker and taker assets amount
-        makingAmount = Math.min(amount, remainingMakingAmount);
+        makingAmount = amount > remainingMakingAmount ? remainingMakingAmount : amount;
         takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
 
         uint256 threshold = takerTraits.threshold();
@@ -99,30 +87,14 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
         unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
 
         // Invalidate order depending on makerTraits
-        _bitInvalidator[order.maker.get()].checkAndInvalidate(order.makerTraits.nonceOrEpoch());
+        _orderFinished[order.maker.get()][orderHash] = true;
 
         // Pre interaction, where maker can prepare funds interactively
-        if (order.makerTraits.needPreInteractionCall()) {
-            bytes calldata data = extension.preInteractionTargetAndData();
-            address listener = order.maker.get();
-            if (data.length > 19) {
-                listener = address(bytes20(data));
-                data = data[20:];
-            }
-            IPreInteraction(listener).preInteraction(
-                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
-            );
-        }
+        // deleted to save gas
 
         // Maker => Taker
         {
-            if (!_callTransferFromWithSuffix(
-                order.makerAsset.get(),
-                order.maker.get(),
-                target,
-                makingAmount,
-                extension.makerAssetSuffix()
-            )) revert TransferFromMakerToTakerFailed();
+            if (!IERC20(order.makerAsset.get()).transferFrom(order.maker.get(), target, makingAmount)) revert TransferFromMakerToTakerFailed();
         }
 
         if (interaction.length > 19) {
@@ -133,16 +105,7 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
         }
 
         // Taker => Maker
-        if (msg.value != 0) revert Errors.InvalidMsgValue();
-
-        address receiver = order.getReceiver();
-        if (!_callTransferFromWithSuffix(
-            order.takerAsset.get(),
-            msg.sender,
-            receiver,
-            takingAmount,
-            extension.takerAssetSuffix()
-        )) revert TransferFromTakerToMakerFailed();
+        // deleted to save gas
 
         // Post interaction, where maker can handle funds interactively
         if (order.makerTraits.needPostInteractionCall()) {
@@ -197,48 +160,6 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
             interaction = args[:interactionLength];
         } else {
             interaction = msg.data[:0];
-        }
-    }
-
-    /**
-      * @notice Checks the remaining making amount for the order.
-      * @dev If the order has been invalidated, the function will revert.
-      * @param order The order to check.
-      * @param orderHash The hash of the order.
-      * @return remainingMakingAmount The remaining amount of the order.
-      */
-    function _checkRemainingMakingAmount(IOrderMixin.Order calldata order, bytes32 orderHash) private view returns(uint256 remainingMakingAmount) {
-        if (order.makerTraits.useBitInvalidator()) {
-            remainingMakingAmount = order.makingAmount;
-        } else {
-            remainingMakingAmount = _remainingInvalidator[order.maker.get()][orderHash].remaining(order.makingAmount);
-        }
-        if (remainingMakingAmount == 0) revert InvalidatedOrder();
-    }
-
-    /**
-      * @notice Calls the transferFrom function with an arbitrary suffix.
-      * @dev The suffix is appended to the end of the standard ERC20 transferFrom function parameters.
-      * @param asset The token to be transferred.
-      * @param from The address to transfer the token from.
-      * @param to The address to transfer the token to.
-      * @param amount The amount of the token to transfer.
-      * @param suffix The suffix (additional data) to append to the end of the transferFrom call.
-      * @return success A boolean indicating whether the transfer was successful.
-      */
-    function _callTransferFromWithSuffix(address asset, address from, address to, uint256 amount, bytes calldata suffix) private returns(bool success) {
-        bytes4 selector = IERC20.transferFrom.selector;
-        assembly ("memory-safe") { // solhint-disable-line no-inline-assembly
-            let data := mload(0x40)
-            mstore(data, selector)
-            mstore(add(data, 0x04), from)
-            mstore(add(data, 0x24), to)
-            mstore(add(data, 0x44), amount)
-            if suffix.length {
-                calldatacopy(add(data, 0x64), suffix.offset, suffix.length)
-            }
-            let status := call(gas(), asset, 0, data, add(0x64, suffix.length), 0x0, 0x20)
-            success := and(status, or(iszero(returndatasize()), and(gt(returndatasize(), 31), eq(mload(0), 1))))
         }
     }
 }

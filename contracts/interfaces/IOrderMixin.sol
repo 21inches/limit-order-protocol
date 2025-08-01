@@ -51,18 +51,6 @@ interface IOrderMixin {
     );
 
     /**
-     * @notice Emitted when order with `useBitInvalidator` gets cancelled
-     * @param maker Maker address
-     * @param slotIndex Slot index that was updated
-     * @param slotValue New slot value
-     */
-    event BitInvalidatorUpdated(
-        address indexed maker,
-        uint256 slotIndex,
-        uint256 slotValue
-    );
-
-    /**
      * @notice Cancels order's quote
      * @param makerTraits Order makerTraits
      * @param orderHash Hash of the order to cancel

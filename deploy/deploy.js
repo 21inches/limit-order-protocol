@@ -18,7 +18,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     const limitOrderProtocol = await deploy('LimitOrderProtocol', {
         from: deployer,
-        gasLimit: 30_000_000,
+        // gasLimit: 30_000_000,
     });
 
     console.log('LimitOrderProtocol deployed to:', limitOrderProtocol.address);

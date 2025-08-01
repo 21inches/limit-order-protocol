@@ -61,16 +61,6 @@ library ExtensionLib {
         return _get(extension, DynamicField.TakingAmountData);
     }
 
-
-    /**
-     * @notice Returns the pre-interaction from the provided extension calldata.
-     * @param extension The calldata from which the pre-interaction is to be retrieved.
-     * @return calldata Bytes representing the pre-interaction.
-     */
-    function preInteractionTargetAndData(bytes calldata extension) internal pure returns(bytes calldata) {
-        return _get(extension, DynamicField.PreInteractionData);
-    }
-
     /**
      * @notice Returns the post-interaction from the provided extension calldata.
      * @param extension The calldata from which the post-interaction is to be retrieved.

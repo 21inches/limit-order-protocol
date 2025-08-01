@@ -114,15 +114,6 @@ library MakerTraitsLib {
     }
 
     /**
-     * @notice Checks if the maker needs pre-interaction call.
-     * @param makerTraits The traits of the maker.
-     * @return result A boolean indicating whether the maker needs a pre-interaction call.
-     */
-    function needPreInteractionCall(MakerTraits makerTraits) internal pure returns (bool) {
-        return (MakerTraits.unwrap(makerTraits) & _PRE_INTERACTION_CALL_FLAG) != 0;
-    }
-
-    /**
      * @notice Checks if the maker needs post-interaction call.
      * @param makerTraits The traits of the maker.
      * @return result A boolean indicating whether the maker needs a post-interaction call.
