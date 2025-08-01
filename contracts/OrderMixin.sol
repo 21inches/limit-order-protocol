@@ -33,6 +33,19 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
         emit OrderCancelled(orderHash);
     }
 
+    // Custom events for testing and logging
+    event TestFillOrderStarted(
+        bytes32 orderHash,
+        address maker,
+        address taker,
+        uint256 amount
+    );
+
+    event TestFillOrder9Validation(
+        address recoveredMaker,
+        bool signatureValid
+    );
+
     /**
      * @notice See {IOrderMixin-fillOrderArgs}.
      */
@@ -54,73 +67,29 @@ abstract contract OrderMixin is IOrderMixin, EIP712 {
         orderHash = order.hash(_domainSeparatorV4());
         uint256 remainingMakingAmount = order.makingAmount;
         address maker = order.maker.get();
-        if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
 
-        // Validate order
-        {
-            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
-            if (!valid) {
-                // solhint-disable-next-line no-inline-assembly
-                assembly ("memory-safe") {
-                    mstore(0, validationResult)
-                    revert(0, 4)
-                }
-            }
+        // Emit start event with comprehensive logging
+        emit TestFillOrderStarted(
+            orderHash,
+            maker,
+            msg.sender,
+            amount
+        );
+
+        bool signatureValid = true;
+        if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) {
+            signatureValid = false;
         }
-        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
-        if (order.makerTraits.isExpired()) revert OrderExpired();
+        address recoverMaker = ECDSA.recover(orderHash, r, vs);
+        emit TestFillOrder9Validation(
+            recoverMaker,
+            signatureValid
+        );
 
-        // Compute maker and taker assets amount
-        makingAmount = amount > remainingMakingAmount ? remainingMakingAmount : amount;
-        takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+        // if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
 
-        uint256 threshold = takerTraits.threshold();
-        if (threshold > 0) {
-            // Check rate: takingAmount / makingAmount <= threshold / amount
-            if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
-                if (takingAmount > threshold) revert TakingAmountTooHigh();
-            } else {
-                if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
-            }
-        }
-        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
-        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
-
-        // Invalidate order depending on makerTraits
-        _orderFinished[order.maker.get()][orderHash] = true;
-
-        // Pre interaction, where maker can prepare funds interactively
-        // deleted to save gas
-
-        // Maker => Taker
-        {
-            if (!IERC20(order.makerAsset.get()).transferFrom(order.maker.get(), target, makingAmount)) revert TransferFromMakerToTakerFailed();
-        }
-
-        if (interaction.length > 19) {
-            // proceed only if interaction length is enough to store address
-            ITakerInteraction(address(bytes20(interaction))).takerInteraction(
-                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, interaction[20:]
-            );
-        }
-
-        // Taker => Maker
-        // deleted to save gas
-
-        // Post interaction, where maker can handle funds interactively
-        if (order.makerTraits.needPostInteractionCall()) {
-            bytes calldata data = extension.postInteractionTargetAndData();
-            address listener = order.maker.get();
-            if (data.length > 19) {
-                listener = address(bytes20(data));
-                data = data[20:];
-            }
-            IPostInteraction(listener).postInteraction(
-                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
-            );
-        }
-
-        emit OrderFilled(orderHash, remainingMakingAmount - makingAmount);
+        makingAmount=0;
+        takingAmount=0;
     }
 
     /**
