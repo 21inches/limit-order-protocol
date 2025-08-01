@@ -156,6 +156,159 @@ abstract contract OrderMixin is IOrderMixin, EIP712, PredicateHelper, SeriesEpoc
         return _fillOrder(order, r, vs, amount, takerTraits, target, extension, interaction);
     }
 
+    function fillOrderArgs2(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder2(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs3(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder3(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs4(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder4(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs5(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder5(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs6(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder6(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs7(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder7(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs8(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder8(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs9(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder9(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
+    function fillOrderArgs10(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        bytes calldata args
+    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
+        (
+            address target,
+            bytes calldata extension,
+            bytes calldata interaction
+        ) = _parseArgs(takerTraits, args);
+
+        return _fillOrder10(order, r, vs, amount, takerTraits, target, extension, interaction);
+    }
+
     function _fillOrder(
         IOrderMixin.Order calldata order,
         bytes32 r,
@@ -186,6 +339,285 @@ abstract contract OrderMixin is IOrderMixin, EIP712, PredicateHelper, SeriesEpoc
         }
 
         (makingAmount, takingAmount) = _fill(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder2(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill2(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder3(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill3(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder4(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill4(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder5(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill5(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder6(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill6(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder7(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill7(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder8(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill8(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder9(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill9(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+    }
+    function _fillOrder10(
+        IOrderMixin.Order calldata order,
+        bytes32 r,
+        bytes32 vs,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
+        // Check signature and apply order/maker permit only on the first fill
+        orderHash = order.hash(_domainSeparatorV4());
+        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
+        if (remainingMakingAmount == order.makingAmount) {
+            address maker = order.maker.get();
+            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
+            if (!takerTraits.skipMakerPermit()) {
+                bytes calldata makerPermit = extension.makerPermit();
+                if (makerPermit.length >= 20) {
+                    // proceed only if taker is willing to execute permit and its length is enough to store address
+                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
+                    if (!order.makerTraits.useBitInvalidator()) {
+                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
+                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
+                    }
+                }
+            }
+        }
+
+        (makingAmount, takingAmount) = _fill10(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
     }
 
     /**
@@ -439,6 +871,812 @@ abstract contract OrderMixin is IOrderMixin, EIP712, PredicateHelper, SeriesEpoc
 
         emit OrderFilled(orderHash, remainingMakingAmount - makingAmount);
     }
+
+    function _fill2(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+    }
+
+    function _fill3(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+    }
+
+    function _fill4(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+    }
+
+    function _fill5(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+
+        // Compute maker and taker assets amount
+        if (takerTraits.isMakingAmount()) {
+            makingAmount = Math.min(amount, remainingMakingAmount);
+            takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: takingAmount / makingAmount <= threshold / amount
+                if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
+                    if (takingAmount > threshold) revert TakingAmountTooHigh();
+                } else {
+                    if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
+                }
+            }
+        }
+        else {
+            takingAmount = amount;
+            makingAmount = order.calculateMakingAmount(extension, takingAmount, remainingMakingAmount, orderHash);
+            if (makingAmount > remainingMakingAmount) {
+                // Try to decrease taking amount because computed making amount exceeds remaining amount
+                makingAmount = remainingMakingAmount;
+                takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+                if (takingAmount > amount) revert TakingAmountExceeded();
+            }
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: makingAmount / takingAmount >= threshold / amount
+                if (amount == takingAmount) { // Gas optimization, no SafeMath.mul()
+                    if (makingAmount < threshold) revert MakingAmountTooLow();
+                } else {
+                    if (makingAmount * amount < threshold * takingAmount) revert MakingAmountTooLow();
+                }
+            }
+        }
+        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
+        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
+    }
+
+    function _fill6(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+
+        // Compute maker and taker assets amount
+        if (takerTraits.isMakingAmount()) {
+            makingAmount = Math.min(amount, remainingMakingAmount);
+            takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: takingAmount / makingAmount <= threshold / amount
+                if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
+                    if (takingAmount > threshold) revert TakingAmountTooHigh();
+                } else {
+                    if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
+                }
+            }
+        }
+        else {
+            takingAmount = amount;
+            makingAmount = order.calculateMakingAmount(extension, takingAmount, remainingMakingAmount, orderHash);
+            if (makingAmount > remainingMakingAmount) {
+                // Try to decrease taking amount because computed making amount exceeds remaining amount
+                makingAmount = remainingMakingAmount;
+                takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+                if (takingAmount > amount) revert TakingAmountExceeded();
+            }
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: makingAmount / takingAmount >= threshold / amount
+                if (amount == takingAmount) { // Gas optimization, no SafeMath.mul()
+                    if (makingAmount < threshold) revert MakingAmountTooLow();
+                } else {
+                    if (makingAmount * amount < threshold * takingAmount) revert MakingAmountTooLow();
+                }
+            }
+        }
+        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
+        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
+
+        // Invalidate order depending on makerTraits
+        if (order.makerTraits.useBitInvalidator()) {
+            _bitInvalidator[order.maker.get()].checkAndInvalidate(order.makerTraits.nonceOrEpoch());
+        } else {
+            _remainingInvalidator[order.maker.get()][orderHash] = RemainingInvalidatorLib.remains(remainingMakingAmount, makingAmount);
+        }
+    }
+
+    function _fill7(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+
+        // Compute maker and taker assets amount
+        if (takerTraits.isMakingAmount()) {
+            makingAmount = Math.min(amount, remainingMakingAmount);
+            takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: takingAmount / makingAmount <= threshold / amount
+                if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
+                    if (takingAmount > threshold) revert TakingAmountTooHigh();
+                } else {
+                    if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
+                }
+            }
+        }
+        else {
+            takingAmount = amount;
+            makingAmount = order.calculateMakingAmount(extension, takingAmount, remainingMakingAmount, orderHash);
+            if (makingAmount > remainingMakingAmount) {
+                // Try to decrease taking amount because computed making amount exceeds remaining amount
+                makingAmount = remainingMakingAmount;
+                takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+                if (takingAmount > amount) revert TakingAmountExceeded();
+            }
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: makingAmount / takingAmount >= threshold / amount
+                if (amount == takingAmount) { // Gas optimization, no SafeMath.mul()
+                    if (makingAmount < threshold) revert MakingAmountTooLow();
+                } else {
+                    if (makingAmount * amount < threshold * takingAmount) revert MakingAmountTooLow();
+                }
+            }
+        }
+        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
+        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
+
+        // Invalidate order depending on makerTraits
+        if (order.makerTraits.useBitInvalidator()) {
+            _bitInvalidator[order.maker.get()].checkAndInvalidate(order.makerTraits.nonceOrEpoch());
+        } else {
+            _remainingInvalidator[order.maker.get()][orderHash] = RemainingInvalidatorLib.remains(remainingMakingAmount, makingAmount);
+        }
+
+        // Pre interaction, where maker can prepare funds interactively
+        if (order.makerTraits.needPreInteractionCall()) {
+            bytes calldata data = extension.preInteractionTargetAndData();
+            address listener = order.maker.get();
+            if (data.length > 19) {
+                listener = address(bytes20(data));
+                data = data[20:];
+            }
+            IPreInteraction(listener).preInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
+            );
+        }
+    }
+
+    function _fill8(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+
+        // Compute maker and taker assets amount
+        if (takerTraits.isMakingAmount()) {
+            makingAmount = Math.min(amount, remainingMakingAmount);
+            takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: takingAmount / makingAmount <= threshold / amount
+                if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
+                    if (takingAmount > threshold) revert TakingAmountTooHigh();
+                } else {
+                    if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
+                }
+            }
+        }
+        else {
+            takingAmount = amount;
+            makingAmount = order.calculateMakingAmount(extension, takingAmount, remainingMakingAmount, orderHash);
+            if (makingAmount > remainingMakingAmount) {
+                // Try to decrease taking amount because computed making amount exceeds remaining amount
+                makingAmount = remainingMakingAmount;
+                takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+                if (takingAmount > amount) revert TakingAmountExceeded();
+            }
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: makingAmount / takingAmount >= threshold / amount
+                if (amount == takingAmount) { // Gas optimization, no SafeMath.mul()
+                    if (makingAmount < threshold) revert MakingAmountTooLow();
+                } else {
+                    if (makingAmount * amount < threshold * takingAmount) revert MakingAmountTooLow();
+                }
+            }
+        }
+        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
+        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
+
+        // Invalidate order depending on makerTraits
+        if (order.makerTraits.useBitInvalidator()) {
+            _bitInvalidator[order.maker.get()].checkAndInvalidate(order.makerTraits.nonceOrEpoch());
+        } else {
+            _remainingInvalidator[order.maker.get()][orderHash] = RemainingInvalidatorLib.remains(remainingMakingAmount, makingAmount);
+        }
+
+        // Pre interaction, where maker can prepare funds interactively
+        if (order.makerTraits.needPreInteractionCall()) {
+            bytes calldata data = extension.preInteractionTargetAndData();
+            address listener = order.maker.get();
+            if (data.length > 19) {
+                listener = address(bytes20(data));
+                data = data[20:];
+            }
+            IPreInteraction(listener).preInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
+            );
+        }
+
+        // Maker => Taker
+        {
+            bool needUnwrap = order.makerAsset.get() == address(_WETH) && takerTraits.unwrapWeth();
+            address receiver = needUnwrap ? address(this) : target;
+            if (order.makerTraits.usePermit2()) {
+                if (extension.makerAssetSuffix().length > 0) revert InvalidPermit2Transfer();
+                IERC20(order.makerAsset.get()).safeTransferFromPermit2(order.maker.get(), receiver, makingAmount);
+            } else {
+                if (!_callTransferFromWithSuffix(
+                    order.makerAsset.get(),
+                    order.maker.get(),
+                    receiver,
+                    makingAmount,
+                    extension.makerAssetSuffix()
+                )) revert TransferFromMakerToTakerFailed();
+            }
+            if (needUnwrap) {
+                _WETH.safeWithdrawTo(makingAmount, target);
+            }
+        }
+
+        if (interaction.length > 19) {
+            // proceed only if interaction length is enough to store address
+            ITakerInteraction(address(bytes20(interaction))).takerInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, interaction[20:]
+            );
+        }
+    }
+
+    function _fill9(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+
+        // Compute maker and taker assets amount
+        if (takerTraits.isMakingAmount()) {
+            makingAmount = Math.min(amount, remainingMakingAmount);
+            takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: takingAmount / makingAmount <= threshold / amount
+                if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
+                    if (takingAmount > threshold) revert TakingAmountTooHigh();
+                } else {
+                    if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
+                }
+            }
+        }
+        else {
+            takingAmount = amount;
+            makingAmount = order.calculateMakingAmount(extension, takingAmount, remainingMakingAmount, orderHash);
+            if (makingAmount > remainingMakingAmount) {
+                // Try to decrease taking amount because computed making amount exceeds remaining amount
+                makingAmount = remainingMakingAmount;
+                takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+                if (takingAmount > amount) revert TakingAmountExceeded();
+            }
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: makingAmount / takingAmount >= threshold / amount
+                if (amount == takingAmount) { // Gas optimization, no SafeMath.mul()
+                    if (makingAmount < threshold) revert MakingAmountTooLow();
+                } else {
+                    if (makingAmount * amount < threshold * takingAmount) revert MakingAmountTooLow();
+                }
+            }
+        }
+        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
+        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
+
+        // Invalidate order depending on makerTraits
+        if (order.makerTraits.useBitInvalidator()) {
+            _bitInvalidator[order.maker.get()].checkAndInvalidate(order.makerTraits.nonceOrEpoch());
+        } else {
+            _remainingInvalidator[order.maker.get()][orderHash] = RemainingInvalidatorLib.remains(remainingMakingAmount, makingAmount);
+        }
+
+        // Pre interaction, where maker can prepare funds interactively
+        if (order.makerTraits.needPreInteractionCall()) {
+            bytes calldata data = extension.preInteractionTargetAndData();
+            address listener = order.maker.get();
+            if (data.length > 19) {
+                listener = address(bytes20(data));
+                data = data[20:];
+            }
+            IPreInteraction(listener).preInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
+            );
+        }
+
+        // Maker => Taker
+        {
+            bool needUnwrap = order.makerAsset.get() == address(_WETH) && takerTraits.unwrapWeth();
+            address receiver = needUnwrap ? address(this) : target;
+            if (order.makerTraits.usePermit2()) {
+                if (extension.makerAssetSuffix().length > 0) revert InvalidPermit2Transfer();
+                IERC20(order.makerAsset.get()).safeTransferFromPermit2(order.maker.get(), receiver, makingAmount);
+            } else {
+                if (!_callTransferFromWithSuffix(
+                    order.makerAsset.get(),
+                    order.maker.get(),
+                    receiver,
+                    makingAmount,
+                    extension.makerAssetSuffix()
+                )) revert TransferFromMakerToTakerFailed();
+            }
+            if (needUnwrap) {
+                _WETH.safeWithdrawTo(makingAmount, target);
+            }
+        }
+
+        if (interaction.length > 19) {
+            // proceed only if interaction length is enough to store address
+            ITakerInteraction(address(bytes20(interaction))).takerInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, interaction[20:]
+            );
+        }
+
+        // Taker => Maker
+        if (order.takerAsset.get() == address(_WETH) && msg.value > 0) {
+            if (msg.value < takingAmount) revert Errors.InvalidMsgValue();
+            if (msg.value > takingAmount) {
+                unchecked {
+                // solhint-disable-next-line avoid-low-level-calls
+                    (bool success, ) = msg.sender.call{value: msg.value - takingAmount}("");
+                    if (!success) revert Errors.ETHTransferFailed();
+                }
+            }
+
+            if (order.makerTraits.unwrapWeth()) {
+                // solhint-disable-next-line avoid-low-level-calls
+                (bool success, ) = order.getReceiver().call{value: takingAmount}("");
+                if (!success) revert Errors.ETHTransferFailed();
+            } else {
+                _WETH.safeDeposit(takingAmount);
+                _WETH.safeTransfer(order.getReceiver(), takingAmount);
+            }
+        } else {
+            if (msg.value != 0) revert Errors.InvalidMsgValue();
+
+            bool needUnwrap = order.takerAsset.get() == address(_WETH) && order.makerTraits.unwrapWeth();
+            address receiver = needUnwrap ? address(this) : order.getReceiver();
+            if (takerTraits.usePermit2()) {
+                if (extension.takerAssetSuffix().length > 0) revert InvalidPermit2Transfer();
+                IERC20(order.takerAsset.get()).safeTransferFromPermit2(msg.sender, receiver, takingAmount);
+            } else {
+                if (!_callTransferFromWithSuffix(
+                    order.takerAsset.get(),
+                    msg.sender,
+                    receiver,
+                    takingAmount,
+                    extension.takerAssetSuffix()
+                )) revert TransferFromTakerToMakerFailed();
+            }
+
+            if (needUnwrap) {
+                _WETH.safeWithdrawTo(takingAmount, order.getReceiver());
+            }
+        }
+    }
+
+    function _fill10(
+        IOrderMixin.Order calldata order,
+        bytes32 orderHash,
+        uint256 remainingMakingAmount,
+        uint256 amount,
+        TakerTraits takerTraits,
+        address target,
+        bytes calldata extension,
+        bytes calldata interaction
+    ) private whenNotPaused() returns(uint256 makingAmount, uint256 takingAmount) {
+        // Validate order
+        {
+            (bool valid, bytes4 validationResult) = order.isValidExtension(extension);
+            if (!valid) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly ("memory-safe") {
+                    mstore(0, validationResult)
+                    revert(0, 4)
+                }
+            }
+        }
+        if (!order.makerTraits.isAllowedSender(msg.sender)) revert PrivateOrder();
+        if (order.makerTraits.isExpired()) revert OrderExpired();
+        if (order.makerTraits.needCheckEpochManager()) {
+            if (order.makerTraits.useBitInvalidator()) revert EpochManagerAndBitInvalidatorsAreIncompatible();
+            if (!epochEquals(order.maker.get(), order.makerTraits.series(), order.makerTraits.nonceOrEpoch())) revert WrongSeriesNonce();
+        }
+
+        // Check if orders predicate allows filling
+        if (extension.length > 0) {
+            bytes calldata predicate = extension.predicate();
+            if (predicate.length > 0) {
+                if (!checkPredicate(predicate)) revert PredicateIsNotTrue();
+            }
+        }
+
+        // Compute maker and taker assets amount
+        if (takerTraits.isMakingAmount()) {
+            makingAmount = Math.min(amount, remainingMakingAmount);
+            takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: takingAmount / makingAmount <= threshold / amount
+                if (amount == makingAmount) {  // Gas optimization, no SafeMath.mul()
+                    if (takingAmount > threshold) revert TakingAmountTooHigh();
+                } else {
+                    if (takingAmount * amount > threshold * makingAmount) revert TakingAmountTooHigh();
+                }
+            }
+        }
+        else {
+            takingAmount = amount;
+            makingAmount = order.calculateMakingAmount(extension, takingAmount, remainingMakingAmount, orderHash);
+            if (makingAmount > remainingMakingAmount) {
+                // Try to decrease taking amount because computed making amount exceeds remaining amount
+                makingAmount = remainingMakingAmount;
+                takingAmount = order.calculateTakingAmount(extension, makingAmount, remainingMakingAmount, orderHash);
+                if (takingAmount > amount) revert TakingAmountExceeded();
+            }
+
+            uint256 threshold = takerTraits.threshold();
+            if (threshold > 0) {
+                // Check rate: makingAmount / takingAmount >= threshold / amount
+                if (amount == takingAmount) { // Gas optimization, no SafeMath.mul()
+                    if (makingAmount < threshold) revert MakingAmountTooLow();
+                } else {
+                    if (makingAmount * amount < threshold * takingAmount) revert MakingAmountTooLow();
+                }
+            }
+        }
+        if (!order.makerTraits.allowPartialFills() && makingAmount != order.makingAmount) revert PartialFillNotAllowed();
+        unchecked { if (makingAmount * takingAmount == 0) revert SwapWithZeroAmount(); }
+
+        // Invalidate order depending on makerTraits
+        if (order.makerTraits.useBitInvalidator()) {
+            _bitInvalidator[order.maker.get()].checkAndInvalidate(order.makerTraits.nonceOrEpoch());
+        } else {
+            _remainingInvalidator[order.maker.get()][orderHash] = RemainingInvalidatorLib.remains(remainingMakingAmount, makingAmount);
+        }
+
+        // Pre interaction, where maker can prepare funds interactively
+        if (order.makerTraits.needPreInteractionCall()) {
+            bytes calldata data = extension.preInteractionTargetAndData();
+            address listener = order.maker.get();
+            if (data.length > 19) {
+                listener = address(bytes20(data));
+                data = data[20:];
+            }
+            IPreInteraction(listener).preInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
+            );
+        }
+
+        // Maker => Taker
+        {
+            bool needUnwrap = order.makerAsset.get() == address(_WETH) && takerTraits.unwrapWeth();
+            address receiver = needUnwrap ? address(this) : target;
+            if (order.makerTraits.usePermit2()) {
+                if (extension.makerAssetSuffix().length > 0) revert InvalidPermit2Transfer();
+                IERC20(order.makerAsset.get()).safeTransferFromPermit2(order.maker.get(), receiver, makingAmount);
+            } else {
+                if (!_callTransferFromWithSuffix(
+                    order.makerAsset.get(),
+                    order.maker.get(),
+                    receiver,
+                    makingAmount,
+                    extension.makerAssetSuffix()
+                )) revert TransferFromMakerToTakerFailed();
+            }
+            if (needUnwrap) {
+                _WETH.safeWithdrawTo(makingAmount, target);
+            }
+        }
+
+        if (interaction.length > 19) {
+            // proceed only if interaction length is enough to store address
+            ITakerInteraction(address(bytes20(interaction))).takerInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, interaction[20:]
+            );
+        }
+
+        // Taker => Maker
+        if (order.takerAsset.get() == address(_WETH) && msg.value > 0) {
+            if (msg.value < takingAmount) revert Errors.InvalidMsgValue();
+            if (msg.value > takingAmount) {
+                unchecked {
+                // solhint-disable-next-line avoid-low-level-calls
+                    (bool success, ) = msg.sender.call{value: msg.value - takingAmount}("");
+                    if (!success) revert Errors.ETHTransferFailed();
+                }
+            }
+
+            if (order.makerTraits.unwrapWeth()) {
+                // solhint-disable-next-line avoid-low-level-calls
+                (bool success, ) = order.getReceiver().call{value: takingAmount}("");
+                if (!success) revert Errors.ETHTransferFailed();
+            } else {
+                _WETH.safeDeposit(takingAmount);
+                _WETH.safeTransfer(order.getReceiver(), takingAmount);
+            }
+        } else {
+            if (msg.value != 0) revert Errors.InvalidMsgValue();
+
+            bool needUnwrap = order.takerAsset.get() == address(_WETH) && order.makerTraits.unwrapWeth();
+            address receiver = needUnwrap ? address(this) : order.getReceiver();
+            if (takerTraits.usePermit2()) {
+                if (extension.takerAssetSuffix().length > 0) revert InvalidPermit2Transfer();
+                IERC20(order.takerAsset.get()).safeTransferFromPermit2(msg.sender, receiver, takingAmount);
+            } else {
+                if (!_callTransferFromWithSuffix(
+                    order.takerAsset.get(),
+                    msg.sender,
+                    receiver,
+                    takingAmount,
+                    extension.takerAssetSuffix()
+                )) revert TransferFromTakerToMakerFailed();
+            }
+
+            if (needUnwrap) {
+                _WETH.safeWithdrawTo(takingAmount, order.getReceiver());
+            }
+        }
+
+        // Post interaction, where maker can handle funds interactively
+        if (order.makerTraits.needPostInteractionCall()) {
+            bytes calldata data = extension.postInteractionTargetAndData();
+            address listener = order.maker.get();
+            if (data.length > 19) {
+                listener = address(bytes20(data));
+                data = data[20:];
+            }
+            IPostInteraction(listener).postInteraction(
+                order, extension, orderHash, msg.sender, makingAmount, takingAmount, remainingMakingAmount, data
+            );
+        }
+
+        emit OrderFilled(orderHash, remainingMakingAmount - makingAmount);
+    }
+
+
 
     /**
       * @notice Processes the taker interaction arguments.
