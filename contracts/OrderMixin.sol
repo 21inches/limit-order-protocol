@@ -292,23 +292,6 @@ abstract contract OrderMixin is IOrderMixin, EIP712, PredicateHelper, SeriesEpoc
         return _fillOrder9(order, r, vs, amount, takerTraits, target, extension, interaction);
     }
 
-    function fillOrderArgs10(
-        IOrderMixin.Order calldata order,
-        bytes32 r,
-        bytes32 vs,
-        uint256 amount,
-        TakerTraits takerTraits,
-        bytes calldata args
-    ) external payable returns(uint256 /* makingAmount */, uint256 /* takingAmount */, bytes32 /* orderHash */) {
-        (
-            address target,
-            bytes calldata extension,
-            bytes calldata interaction
-        ) = _parseArgs(takerTraits, args);
-
-        return _fillOrder10(order, r, vs, amount, takerTraits, target, extension, interaction);
-    }
-
     function _fillOrder(
         IOrderMixin.Order calldata order,
         bytes32 r,
@@ -569,55 +552,22 @@ abstract contract OrderMixin is IOrderMixin, EIP712, PredicateHelper, SeriesEpoc
     ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
         // Check signature and apply order/maker permit only on the first fill
         orderHash = order.hash(_domainSeparatorV4());
-        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
-        if (remainingMakingAmount == order.makingAmount) {
-            address maker = order.maker.get();
-            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
-            if (!takerTraits.skipMakerPermit()) {
-                bytes calldata makerPermit = extension.makerPermit();
-                if (makerPermit.length >= 20) {
-                    // proceed only if taker is willing to execute permit and its length is enough to store address
-                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
-                    if (!order.makerTraits.useBitInvalidator()) {
-                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
-                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
-                    }
-                }
-            }
+
+        uint256 remainingMakingAmount;
+        if (order.makerTraits.useBitInvalidator()) {
+            remainingMakingAmount = order.makingAmount;
+        } else {
+            remainingMakingAmount = _remainingInvalidator[order.maker.get()][orderHash].remaining(order.makingAmount);
         }
 
-        (makingAmount, takingAmount) = _fill9(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
-    }
-    function _fillOrder10(
-        IOrderMixin.Order calldata order,
-        bytes32 r,
-        bytes32 vs,
-        uint256 amount,
-        TakerTraits takerTraits,
-        address target,
-        bytes calldata extension,
-        bytes calldata interaction
-    ) private returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash) {
-        // Check signature and apply order/maker permit only on the first fill
-        orderHash = order.hash(_domainSeparatorV4());
-        uint256 remainingMakingAmount = _checkRemainingMakingAmount(order, orderHash);
         if (remainingMakingAmount == order.makingAmount) {
             address maker = order.maker.get();
-            if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) revert BadSignature();
-            if (!takerTraits.skipMakerPermit()) {
-                bytes calldata makerPermit = extension.makerPermit();
-                if (makerPermit.length >= 20) {
-                    // proceed only if taker is willing to execute permit and its length is enough to store address
-                    IERC20(address(bytes20(makerPermit))).tryPermit(maker, address(this), makerPermit[20:]);
-                    if (!order.makerTraits.useBitInvalidator()) {
-                        // Bit orders are not subjects for reentrancy, but we still need to check remaining-based orders for reentrancy
-                        if (!_remainingInvalidator[order.maker.get()][orderHash].isNewOrder()) revert ReentrancyDetected();
-                    }
-                }
-            }
+        }
+        if (maker == address(0) || maker != ECDSA.recover(orderHash, r, vs)) {
+            emit BadSignature();
         }
 
-        (makingAmount, takingAmount) = _fill10(order, orderHash, remainingMakingAmount, amount, takerTraits, target, extension, interaction);
+
     }
 
     /**
