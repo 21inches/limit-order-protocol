@@ -60,42 +60,6 @@ library TakerTraitsLib {
     }
 
     /**
-     * @notice Checks if the taking amount should be calculated based on making amount.
-     * @param takerTraits The traits of the taker.
-     * @return result A boolean indicating whether the taking amount should be calculated based on making amount.
-     */
-    function isMakingAmount(TakerTraits takerTraits) internal pure returns (bool) {
-        return (TakerTraits.unwrap(takerTraits) & _MAKER_AMOUNT_FLAG) != 0;
-    }
-
-    /**
-     * @notice Checks if the order should unwrap WETH and send ETH to taker.
-     * @param takerTraits The traits of the taker.
-     * @return result A boolean indicating whether the order should unwrap WETH.
-     */
-    function unwrapWeth(TakerTraits takerTraits) internal pure returns (bool) {
-        return (TakerTraits.unwrap(takerTraits) & _UNWRAP_WETH_FLAG) != 0;
-    }
-
-    /**
-     * @notice Checks if the order should skip maker's permit execution.
-     * @param takerTraits The traits of the taker.
-     * @return result A boolean indicating whether the order don't apply permit.
-     */
-    function skipMakerPermit(TakerTraits takerTraits) internal pure returns (bool) {
-        return (TakerTraits.unwrap(takerTraits) & _SKIP_ORDER_PERMIT_FLAG) != 0;
-    }
-
-    /**
-     * @notice Checks if the order uses the permit2 instead of permit.
-     * @param takerTraits The traits of the taker.
-     * @return result A boolean indicating whether the order uses the permit2.
-     */
-    function usePermit2(TakerTraits takerTraits) internal pure returns (bool) {
-        return (TakerTraits.unwrap(takerTraits) & _USE_PERMIT2_FLAG) != 0;
-    }
-
-    /**
      * @notice Retrieves the threshold amount from the takerTraits.
      * The maximum amount a taker agrees to give in exchange for a making amount.
      * @param takerTraits The traits of the taker.

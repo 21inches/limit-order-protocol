@@ -35,7 +35,23 @@ module.exports = {
             viaIR: true,
         },
     },
-    networks,
+    networks: {
+        sepolia: {
+          url: process.env.SEPOLIA_RPC_URL,
+          accounts: [`0x${process.env.PRIVATE_KEY}`]
+        },
+        baseSepolia: {
+          url: process.env.BASE_SEPOLIA_RPC_URL,
+          accounts: [`0x${process.env.PRIVATE_KEY}`]
+        },
+        xtzGhostnet: {
+          url: process.env.XTZ_GHOSTNET_RPC_URL,
+          accounts: [`0x${process.env.PRIVATE_KEY}`]
+        }
+    },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
+    },
     namedAccounts: {
         deployer: {
             default: 0,

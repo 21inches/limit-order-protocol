@@ -20,18 +20,6 @@ library BitInvalidatorLib {
     }
 
     /**
-     * @notice Retrieves the validity status of entities in a specific slot.
-     * @dev Each bit in the returned value corresponds to the validity of an entity. 0 for valid, 1 for invalidated.
-     * @param self The data structure.
-     * @param nonce The nonce identifying the slot.
-     * @return result The validity status of entities in the slot as a uint256.
-     */
-    function checkSlot(Data storage self, uint256 nonce) internal view returns(uint256) {
-        uint256 invalidatorSlot = nonce >> 8;
-        return self._raw[invalidatorSlot];
-    }
-
-    /**
      * @notice Checks the validity of a specific entity and invalidates it if valid.
      * @dev Throws an error if the entity has already been invalidated.
      * @param self The data structure.

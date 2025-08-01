@@ -151,31 +151,4 @@ library MakerTraitsLib {
     function useBitInvalidator(MakerTraits makerTraits) internal pure returns (bool) {
         return !allowPartialFills(makerTraits) || !allowMultipleFills(makerTraits);
     }
-
-    /**
-     * @notice Checks if the maker needs to check the epoch.
-     * @param makerTraits The traits of the maker.
-     * @return result A boolean indicating whether the maker needs to check the epoch manager.
-     */
-    function needCheckEpochManager(MakerTraits makerTraits) internal pure returns (bool) {
-        return (MakerTraits.unwrap(makerTraits) & _NEED_CHECK_EPOCH_MANAGER_FLAG) != 0;
-    }
-
-    /**
-     * @notice Checks if the maker uses permit2.
-     * @param makerTraits The traits of the maker.
-     * @return result A boolean indicating whether the maker uses permit2.
-     */
-    function usePermit2(MakerTraits makerTraits) internal pure returns (bool) {
-        return MakerTraits.unwrap(makerTraits) & _USE_PERMIT2_FLAG != 0;
-    }
-
-    /**
-     * @notice Checks if the maker needs to unwraps WETH.
-     * @param makerTraits The traits of the maker.
-     * @return result A boolean indicating whether the maker needs to unwrap WETH.
-     */
-    function unwrapWeth(MakerTraits makerTraits) internal pure returns (bool) {
-        return MakerTraits.unwrap(makerTraits) & _UNWRAP_WETH_FLAG != 0;
-    }
 }

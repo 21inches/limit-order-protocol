@@ -61,24 +61,6 @@ library ExtensionLib {
         return _get(extension, DynamicField.TakingAmountData);
     }
 
-    /**
-     * @notice Returns the order's predicate from the provided extension calldata.
-     * @param extension The calldata from which the predicate is to be retrieved.
-     * @return calldata Bytes representing the predicate.
-     */
-    function predicate(bytes calldata extension) internal pure returns(bytes calldata) {
-        return _get(extension, DynamicField.Predicate);
-    }
-
-    /**
-     * @notice Returns the maker's permit from the provided extension calldata.
-     * @param extension The calldata from which the maker's permit is to be retrieved.
-     * @return calldata Bytes representing the maker's permit.
-     */
-    function makerPermit(bytes calldata extension) internal pure returns(bytes calldata) {
-        return _get(extension, DynamicField.MakerPermit);
-    }
-
 
     /**
      * @notice Returns the pre-interaction from the provided extension calldata.
@@ -96,19 +78,6 @@ library ExtensionLib {
      */
     function postInteractionTargetAndData(bytes calldata extension) internal pure returns(bytes calldata) {
         return _get(extension, DynamicField.PostInteractionData);
-    }
-
-    /**
-     * @notice Returns extra suffix data from the provided extension calldata.
-     * @param extension The calldata from which the extra suffix data is to be retrieved.
-     * @return calldata Bytes representing the extra suffix data.
-     */
-    function customData(bytes calldata extension) internal pure returns(bytes calldata) {
-        if (extension.length < 0x20) return msg.data[:0];
-        uint256 offsets = uint256(bytes32(extension));
-        unchecked {
-            return extension[0x20 + (offsets >> 224):];
-        }
     }
 
     /**
