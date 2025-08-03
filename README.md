@@ -1,159 +1,41 @@
-<div align="center">
-    <img src="https://github.com/1inch/limit-order-protocol/blob/master/.github/1inch_github_w.svg#gh-light-mode-only">
-    <img src="https://github.com/1inch/limit-order-protocol/blob/master/.github/1inch_github_b.svg#gh-dark-mode-only">
-</div>
+## Contract Addresses
 
-# 1inch Limit Order Protocol Smart Contract
+### Ethereum Sepolia (Chain ID: 11155111)
 
-[![Build Status](https://github.com/1inch/limit-order-protocol/workflows/CI/badge.svg)](https://github.com/1inch/limit-order-protocol/actions)
-[![Coverage Status](https://codecov.io/gh/1inch/limit-order-protocol/branch/master/graph/badge.svg?token=FSFTJPS41S)](https://codecov.io/gh/1inch/limit-order-protocol)
+- **LOP**: `0x32a209c3736c5bd52e395eabc86b9bca4f602985`
+- **Escrow Factory**: `0x61a32a9263c6ff568c66799a94f8fe09c1db7a66`
+- **Resolver**: `0xe002e8e986fd4bbff58b49423c7f7e0e0e92cc59`
+- **BLT Token**: `0x0BF8E91b08b242cD7380bC92385C90c8270b37f0`
+- **Escrow Src Implementation**: `0xa17ddb01f03a42e0070a0e25099cf3d27b705fff`
+- **Escrow Dst Implementation**: `0x7490329e69ab8e298a32dc59493034e4d02a5ccf`
+- **True ERC20**: `0x6dFe5DA3C989aB142CfB16a8FfA2B0e640b1d821`
 
-### Version warning
+### Base Sepolia (Chain ID: 84532)
 
-The `master` branch contains the latest work-in-progress version of limit orders. It hasn't been audited and may contain severe security issues or may not work at all.
+- **LOP**: `0xe30f9abbadc1eb84b41d41035b2a2c7d0bd5f9b2`
+- **Escrow Factory**: `0x178ddaca4499a89e40826ec247baf608051edf9e`
+- **Resolver**: `0x3fe279B56F330304446522F04907fBBe03Fe236a`
+- **BLT Token**: `0xbb7f72d58f5F7147CBa030Ba4c46a94a07E4c2CA`
+- **Escrow Src Implementation**: `0xe55061a78bf30e7f38410b90a6a167d5621cc068`
+- **Escrow Dst Implementation**: `0x0418b6e80a602474fbfadc3a2594413fe68496bb`
+- **True ERC20**: `0x8bD9f7C82eBF9D9C830a76bAcb0E99A52163B304`
 
-Please, use the commit tagged version to get the latest production version that has passed through a series of security audits:
+### Etherlink Testnet (Chain ID: 128123)
 
-- tag `4.3.2` [Fee Flow in Limit order protocol v4](https://github.com/1inch/limit-order-protocol/tree/4.3.2) / [secure audits](https://github.com/1inch/1inch-audits/tree/master/Fees%20for%20LO%20and%20Fusion%20V1)
-- tag `4.0.0` [Limit order protocol v4](https://github.com/1inch/limit-order-protocol/tree/4.0.0) / [security audits](https://github.com/1inch/1inch-audits/tree/master/Aggregation%20Pr.%20V6%20and%20Limit%20Order%20Pr.V4)
-- tag `3.0.1` [Limit order protocol v3](https://github.com/1inch/limit-order-protocol/tree/3.0.1) / [security audits](https://github.com/1inch/1inch-audits/tree/master/Aggregation%20Pr.%20V5%20and%20Limit%20Order%20Pr.V3)
-- tag `v2` - [Limit order protocol v2](https://github.com/1inch/limit-order-protocol/tree/v2) / [security audits](https://github.com/1inch/1inch-audits/tree/master/Limit%20Order%20Protocol%20V2)
+- **LOP**: `0x942DFf5Af350fd0816Bd03C91729633C293dB5dA`
+- **Escrow Factory**: `0x54B6335e1daEed822d2f06Bf5D5c97b7423e319d`
+- **Resolver**: `0xa7c76ECE64a9c7ea863bb324a9451f903e1D0996`
+- **BLT Token**: `0xb84b2c6c0d554263Eab9f56DEeA8523347270A11`
+- **Escrow Src Implementation**: `0xdb2c3b4de9e6943da03afaff9dacaee861eb7f39`
+- **Escrow Dst Implementation**: `0xa16d7bc6b95a3ab7b2a2514cd58ddc18732aa74a`
+- **True ERC20**: `0x8382515C25930D298e3B64Eb397005f9Ae71fc0C`
 
-### About
+### Monad Testnet (Chain ID: 10143)
 
-You can find the latest general overview and documentation on the 1inch limit orders protocol in the [description.md](description.md). Documentation for this and previous versions can be found on the [1inch documentation portal](https://docs.1inch.io/docs/limit-order-protocol/introduction/).
-
-The repository contains smart contracts for EVM-based blockchains (such as Ethereum, Binance Smart Chain, etc.). These contracts are a core part of the 1inch limit order protocol, allowing users to create limit orders off-chain that can be filled on-chain. A limit order is a data structure signed according to EIP-712.
-
-### Limit Order
-
-The key features of the protocol are **extreme flexibility** and **high gas efficiency**, which are achieved with the following features
-
-**Basic features**
-
-- Select an asset receiver for an order.
-- Choose whether to allow or disallow partial and multiple fills.
-- Define conditions that must be met before execution can proceed (e.g. stop-loss, take-profit orders).
-- Specify interactions (arbitrary maker's code) to execute before and after order filling.
-- Choose an approval scheme for token spend (approve, permit, permit2).
-- Request that WETH be unwrapped to ETH either before (to sell ETH) or after the swap (to receive ETH).
-- Make an order private by specifying the only allowed taker's address.
-- Set the order's expiration date.
-- Assign a nonce or epoch to the order for easy cancellation later.
-
-**Advanced features**
-
-- Define a proxy to handle transfers of assets that are not compliant with `IERC20`, allowing the swapping of non-ERC20 tokens, such as ERC721 or ERC1155.
-- Define functions to calculate, on-chain, the exchange rate for maker and taker assets. These functions can be used to implement dutch auctions (where the rate decreases over time) or range orders (where the rate depends on the volume already filled), among others.
-
-### RFQ orders
-
-Separate RFQ order are deprecated in v4. To create the most gas efficient order use a basic order without extensions.
-
-### Supported tokens
-
-- ERC 20
-- ERC 721
-- ERC 1155
-- Other token standards could be supported via external extension
-
-### Deployments & audits (Limit Orders Protocol v4):
-
-You can find 1inch Router v6 and 1inch Limit Order protocol v4 deployments here:
-
-**Ethereum mainnet:** [0x111111125421ca6dc452d289314280a0f8842a65](https://etherscan.io/address/0x111111125421ca6dc452d289314280a0f8842a65)
-
-**BSC mainnet:** [0x111111125421ca6dc452d289314280a0f8842a65](https://bscscan.com/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**Polygon mainnet:** [0x111111125421ca6dc452d289314280a0f8842a65](https://polygonscan.com/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**Optimism Mainnet:** [0x111111125421ca6dc452d289314280a0f8842a65](https://optimistic.etherscan.io/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**Arbitrum One:** [0x111111125421ca6dc452d289314280a0f8842a65](https://arbiscan.io/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**Gnosis Chain:** [0x111111125421ca6dc452d289314280a0f8842a65](https://blockscout.com/xdai/mainnet/address/0x111111125421ca6dc452d289314280a0f8842a65/transactions)
-
-**Avalanche:** [0x111111125421ca6dc452d289314280a0f8842a65](https://snowtrace.io/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**Fantom:** [0x111111125421ca6dc452d289314280a0f8842a65](https://ftmscan.com/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**Aurora:** [0x111111125421ca6dc452d289314280a0f8842a65](https://aurorascan.dev/address/0x111111125421ca6dc452d289314280a0f8842a65)
-
-**Kaia:** [0x111111125421ca6dc452d289314280a0f8842a65](https://kaiascan.io/address/0x111111125421ca6dc452d289314280a0f8842a65)
-
-**Base:** [0x111111125421ca6dc452d289314280a0f8842a65](https://basescan.org/address/0x111111125421ca6dc452d289314280a0f8842a65#code)
-
-**zkSync Era:** [0x6fd4383cb451173d5f9304f041c7bcbf27d561ff](https://era.zksync.network/address/0x6fd4383cb451173d5f9304f041c7bcbf27d561ff#code)
-
-You can find audit reports on etherscan and in the separate [audit repository](https://github.com/1inch/1inch-audits/tree/master/Limit%20Order%20Protocol).
-
-### Utils library (Limit Orders Protocol v4)
-Plenty of utils that helps create & sign orders are available in our typescript utils library:
-
-- [1inch Limit Order Utils](https://github.com/1inch/limit-order-protocol-utils)
-
----
-
-# Deploying 1inch Limit Order Protocol on Tron
-This guide provides the step-by-step instructions to compile and deploy the 1inch Limit Order Protocol smart contracts to a Tron-compatible network (Mainnet or Nile Testnet) using TronBox.
-
-
-## 1. Project Installation
-
-install the dependencies.
-
-```bash
-yarn install
-```
-
-## 2. Environment Setup
-The deployment script requires a private key to sign the transaction. We use a .env file to handle this securely.
-
-Create a `.env` file in the root directory of the project and add your private key:
-
-```bash
-PRIVATE_KEY_TRON=your_private_key_here # For Tron Mainnet
-PRIVATE_KEY_NILE=your_private_key_here # For Tron Nile Testnet
-```
-
-## 3. Deployment Workflow
-### 3.1. Compile Contracts
-This command reads the Solidity files from the contracts/ directory, compiles them, and places the resulting JSON artifacts into the artifacts-tron/ directory.
-```bash
-yarn tronbox compile
-```
-
-### 3.2. Deploy (Migrate) to a Network
-This command runs the deployment scripts located in the deploy-tron/ directory. It will deploy the contracts to the network you specify.
-
-**Mainnet**
-```bash
-yarn tronbox migrate --network tron
-
-```
-
-**Nile Testnet**
-```bash
-yarn tronbox migrate --network nile
-```
-
-### 3.3. Deploying a Single Contract (e.g., WTRX)
-
-If you only need to deploy a specific part of the protocol, like the `WTRX` contract, you can target its migration script directly. This avoids running the full deployment.
-
-Assuming the `WTRX` deployment script is numbered `2_deploy_wtrx.js`, use the `--f <number>` flag to specify which script to run.
-
-**Deploy only WTRX to Tron Mainnet:**
-```bash
-yarn tronbox migrate --f 2 --network tron
-```
-
-**Deploy only WTRX to Nile Testnet:**
-```bash
-yarn tronbox migrate --f 2 --network nile
-```
-
-WETH9_21Inches Address:
-- **Nile Testnet:** [TMY5c28cmksFEpF5oJZt334fPXSg2Lfp4C](https://nile.tronscan.org/#/contract/TMY5c28cmksFEpF5oJZt334fPXSg2Lfp4C)
-
-
+- **LOP**: `0xFCf9F11666Adb060D03Bb873954673f90914bAdE`
+- **Escrow Factory**: `0xb84b2c6c0d554263Eab9f56DEeA8523347270A11`
+- **Resolver**: `0x0642d9dE03A087588b39dBc844edE137e81f504E`
+- **BLT Token**: `0x60c13fAcC3d2363fa4c1D4c8A0456a4FeBc98903`
+- **Escrow Src Implementation**: `0xb067a3695e316f4d6f42ef047cac941a3f0298f1`
+- **Escrow Dst Implementation**: `0x4a2d6954c17ff9be4af9b0c9a74e2d0ff4cf128d`
+- **True ERC20**: `0xE4F87948Efd25651CA20d8b0d750d94612f3FCB7`
