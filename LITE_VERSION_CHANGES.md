@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines all changes made to create the lite version of the Limit Order Protocol. The main goal was to decrease code size while maintaining all core functionality. The changes were implemented across two commits:
+This document outlines all changes made to create the lite version of the Limit Order Protocol. The lite version was developed specifically to address Etherlink's transaction gas limit of 30 million, which required a significant reduction in contract code size. The goal was to decrease code size while maintaining all core functionality. The changes were implemented across two commits:
 
 1. **[Commit 593658b](https://github.com/21inches/limit-order-protocol/commit/593658bcb43bd116ca77eb0de904316552565e32)**: Initial lite version implementation
 2. **[Commit 7dcc669](https://github.com/21inches/limit-order-protocol/commit/7dcc669952ac911a2d57e2327bb81b2c790d285a)**: Complete lite version with final optimizations
